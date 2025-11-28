@@ -1,0 +1,43 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Todo {
+  id: ID!
+  text: String!
+  done: Boolean!
+  user: User!
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+
+type CentroidData {
+  freq_centroid_Hz: Float!
+  time_centroid_ns: Float!
+}
+
+type CentroidPayload {
+  acquired_at: String!
+  acquisition_id: String!
+  centroid: [CentroidData!]!
+  centroidProcessDuration: Float!
+  error: String!
+  sensor_id: String!
+}
+
+type Query {
+  todos: [Todo!]!
+  centroid: CentroidPayload!
+}
+
+input NewTodo {
+  text: String!
+  userId: String!
+}
+
+type Mutation {
+  createTodo(input: NewTodo!): Todo!
+}
