@@ -32,6 +32,8 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+	data.Init()
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
@@ -56,10 +58,7 @@ func main() {
 	mux.Handle("/query", srv)
 
 	mux.HandleFunc("/centroid", func(w http.ResponseWriter, r *http.Request) {
-		centroidData, _ := os.ReadFile("data/centroid.json")
-		var dataPayload data.CentroidFile
-		json.Unmarshal(centroidData, &dataPayload)
-		responseBytes, err := json.Marshal(dataPayload.Payload[0])
+		responseBytes, err := json.Marshal(data.DataPayload.Payload[0])
 		if err != nil {
 			http.Error(w, "Failed to marshal payload", http.StatusInternalServerError)
 			return

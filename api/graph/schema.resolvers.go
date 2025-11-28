@@ -7,9 +7,7 @@ package graph
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
 	"test-golang-gqlgen/data"
 	"test-golang-gqlgen/graph/model"
 )
@@ -26,10 +24,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 
 // Centroid is the resolver for the centroid field.
 func (r *queryResolver) Centroid(ctx context.Context) (*model.CentroidPayload, error) {
-	centroidData, _ := os.ReadFile("data/centroid.json")
-	var dataPayload data.CentroidFile
-	json.Unmarshal(centroidData, &dataPayload)
-	return &dataPayload.Payload[0], nil
+	return &data.DataPayload.Payload[0], nil
 }
 
 // Mutation returns MutationResolver implementation.
