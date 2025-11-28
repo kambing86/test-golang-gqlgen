@@ -6,5 +6,6 @@ go run server.go
 
 # run WEB by
 ```sh
+pnpm install
 pnpm run dev
 ```

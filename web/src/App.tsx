@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 const App = () => {
-  const [testCount, setTestCount] = useState(200);
+	const [testCount, setTestCount] = useState(200);
 	const [restResult, setRestResult] = useState<number>(0);
 	const [graphqlResult, setGraphqlResult] = useState<number>(0);
 
@@ -64,11 +64,25 @@ const App = () => {
 		}
 	}
 
+	function clear() {
+		setRestResult(0);
+		setGraphqlResult(0);
+	}
+
 	return (
 		<div className="content">
 			<h1>Rsbuild with React</h1>
 			<p>Start building amazing things with Rsbuild.</p>
-      <div>Test count: <input value={testCount} onChange={e => setTestCount(Number(e.target.value))} /></div>
+			<div>
+				Test count:{" "}
+				<input
+					value={testCount}
+					onChange={(e) => {
+						setTestCount(Number(e.target.value));
+						clear();
+					}}
+				/>
+			</div>
 			<div style={{ display: "flex" }}>
 				<div style={{ flex: "1 1 0" }}>
 					<div>REST</div>
@@ -97,8 +111,7 @@ const App = () => {
 				<button
 					type="button"
 					onClick={() => {
-						setRestResult(0);
-						setGraphqlResult(0);
+						clear();
 					}}
 				>
 					Clear
@@ -106,8 +119,9 @@ const App = () => {
 				<button
 					type="button"
 					onClick={() => {
+						clear();
 						testRestAPI();
-            testGraphQLAPI();
+						testGraphQLAPI();
 					}}
 				>
 					Test together
