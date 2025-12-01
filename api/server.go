@@ -7,6 +7,7 @@ import (
 	"os"
 	"test-golang-gqlgen/data"
 	"test-golang-gqlgen/graph"
+	"test-golang-gqlgen/middlewares"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -17,19 +18,6 @@ import (
 )
 
 const defaultPort = "8080"
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}
 
 func main() {
 	data.Init()
@@ -67,7 +55,8 @@ func main() {
 		w.Write(responseBytes)
 	})
 
-	handler := corsMiddleware(mux)
+	handler := middlewares.CorsMiddleware(mux)
+	handler = middlewares.CompressionMiddleware(handler)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, handler))
