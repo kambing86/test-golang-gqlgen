@@ -1,34 +1,73 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 
-const App = () => {
-	const [testCount, setTestCount] = useState(200);
-	const [restResult, setRestResult] = useState<number>(0);
-	const [graphqlResult, setGraphqlResult] = useState<number>(0);
+import { limitAsync } from "es-toolkit/array";
+import Tester, { type TesterRef } from "./Tester";
 
-	function testRestAPI() {
+// Limit to at most 3 concurrent requests.
+function getLimit<T>(callback: () => Promise<T>, concurrency: number) {
+	return limitAsync(async () => {
 		const startTime = performance.now();
-		let completedRequests = 0;
+		const data = await callback();
+		const endTime = performance.now();
+		const duration = endTime - startTime;
+		return { data, duration };
+	}, concurrency);
+}
 
-		for (let i = 0; i < testCount; i++) {
-			fetch("http://localhost:8080/centroid")
-				.then((response) => response.json())
-				.then((_data) => {
-					completedRequests++;
-					if (completedRequests === testCount) {
-						const endTime = performance.now();
-						const totalTime = endTime - startTime;
-						setRestResult(totalTime);
-					}
-				});
-		}
+function testRestAPI(
+	testCount: number,
+	concurrency: number,
+	tester: TesterRef | null,
+) {
+	const startTime = performance.now();
+	let completedRequests = 0;
+	let maxTime = 0;
+	let minTime = Number.MAX_VALUE;
+
+	const fetchPromise = getLimit(
+		() => fetch("http://localhost:8080/centroid"),
+		concurrency,
+	);
+
+	for (let i = 0; i < testCount; i++) {
+		fetchPromise()
+			.then(({ duration }) => {
+				if (duration > maxTime) {
+					maxTime = duration;
+					tester?.setMax(maxTime);
+				}
+				if (duration < minTime) {
+					minTime = duration;
+					tester?.setMin(minTime);
+				}
+				completedRequests++;
+				tester?.setCount(completedRequests);
+				const endTime = performance.now();
+				const averageTime = (endTime - startTime) / completedRequests;
+				tester?.setAverage(averageTime);
+				if (completedRequests === testCount) {
+					const totalTime = endTime - startTime;
+					tester?.setResult(totalTime);
+				}
+			})
+			.catch((error) => {
+				tester?.setError(`Error: ${error.message}`);
+			});
 	}
+}
 
-	function testGraphQLAPI() {
-		const startTime = performance.now();
-		let completedRequests = 0;
+function testGraphQLAPI(
+	testCount: number,
+	concurrency: number,
+	tester: TesterRef | null,
+) {
+	const startTime = performance.now();
+	let completedRequests = 0;
+	let maxTime = 0;
+	let minTime = Number.MAX_VALUE;
 
-		const query = `
+	const query = `
 {
   centroid {
     acquired_at
@@ -44,30 +83,56 @@ const App = () => {
 }
 `;
 
-		for (let i = 0; i < testCount; i++) {
+	const fetchPromise = getLimit(
+		() =>
 			fetch("http://localhost:8080/query", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({ query }),
+			}),
+		concurrency,
+	);
+
+	for (let i = 0; i < testCount; i++) {
+		fetchPromise()
+			.then(({ duration }) => {
+				if (duration > maxTime) {
+					maxTime = duration;
+					tester?.setMax(maxTime);
+				}
+				if (duration < minTime) {
+					minTime = duration;
+					tester?.setMin(minTime);
+				}
+				completedRequests++;
+				tester?.setCount(completedRequests);
+				const endTime = performance.now();
+				const averageTime = (endTime - startTime) / completedRequests;
+				tester?.setAverage(averageTime);
+				if (completedRequests === testCount) {
+					const totalTime = endTime - startTime;
+					tester?.setResult(totalTime);
+				}
 			})
-				.then((response) => response.json())
-				.then((_data) => {
-					completedRequests++;
-					if (completedRequests === testCount) {
-						const endTime = performance.now();
-						const totalTime = endTime - startTime;
-						setGraphqlResult(totalTime);
-					}
-				});
-		}
+			.catch((error) => {
+				tester?.setError(`Error: ${error.message}`);
+			});
 	}
+}
+
+const App = () => {
+	const [testCount, setTestCount] = useState(1000);
+	const [concurrency, setConcurrency] = useState(10);
 
 	function clear() {
-		setRestResult(0);
-		setGraphqlResult(0);
+		restTest.current?.clear();
+		graphqlTest.current?.clear();
 	}
+
+	const restTest = useRef<TesterRef>(null);
+	const graphqlTest = useRef<TesterRef>(null);
 
 	return (
 		<div className="content">
@@ -83,28 +148,38 @@ const App = () => {
 					}}
 				/>
 			</div>
+			<div>
+				Concurrency:{" "}
+				<input
+					value={concurrency}
+					onChange={(e) => {
+						setConcurrency(Number(e.target.value));
+						clear();
+					}}
+				/>
+			</div>
 			<div style={{ display: "flex" }}>
 				<div style={{ flex: "1 1 0" }}>
-					<div>REST</div>
-					<button type="button" onClick={testRestAPI}>
-						Test {testCount} times
-					</button>
-					<div>
-						{restResult
-							? `Completed ${testCount} REST requests in ${restResult.toFixed(2)} ms`
-							: ""}
-					</div>
+					<Tester
+						title="REST"
+						testCount={testCount}
+						onTest={() => {
+							restTest.current?.clear();
+							testRestAPI(testCount, concurrency, restTest.current);
+						}}
+						ref={restTest}
+					/>
 				</div>
 				<div style={{ flex: "1 1 0" }}>
-					<div>GraphQL</div>
-					<button type="button" onClick={testGraphQLAPI}>
-						Test {testCount} times
-					</button>
-					<div>
-						{graphqlResult
-							? `Completed ${testCount} GraphQL requests in ${graphqlResult.toFixed(2)} ms`
-							: ""}
-					</div>
+					<Tester
+						title="GraphQL"
+						testCount={testCount}
+						onTest={() => {
+							graphqlTest.current?.clear();
+							testGraphQLAPI(testCount, concurrency, graphqlTest.current);
+						}}
+						ref={graphqlTest}
+					/>
 				</div>
 			</div>
 			<div>
@@ -120,8 +195,8 @@ const App = () => {
 					type="button"
 					onClick={() => {
 						clear();
-						testRestAPI();
-						testGraphQLAPI();
+						testRestAPI(testCount, concurrency, restTest.current);
+						testGraphQLAPI(testCount, concurrency, graphqlTest.current);
 					}}
 				>
 					Test together
