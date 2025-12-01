@@ -124,7 +124,7 @@ function testGraphQLAPI(
 
 const App = () => {
 	const [testCount, setTestCount] = useState(1000);
-	const [concurrency, setConcurrency] = useState(10);
+	const [concurrency, setConcurrency] = useState(1);
 
 	function clear() {
 		restTest.current?.clear();
