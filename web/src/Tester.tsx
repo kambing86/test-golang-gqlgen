@@ -4,6 +4,7 @@ export interface TesterRef {
 	setResult: (value: number) => void;
 	setCount: (value: number) => void;
 	setAverage: (value: number) => void;
+	setServerAvgTime: (value: number) => void;
 	setMax: (value: number) => void;
 	setMin: (value: number) => void;
 	setError: (value: string | null) => void;
@@ -26,6 +27,7 @@ const Tester = React.forwardRef(
 		const [result, setResult] = React.useState<number>(0);
 		const [count, setCount] = React.useState<number>(0);
 		const [average, setAverage] = React.useState<number>(0);
+		const [serverAvgTime, setServerAvgTime] = React.useState<number>(0);
 		const [max, setMax] = React.useState<number>(0);
 		const [min, setMin] = React.useState<number>(0);
 		const [error, setError] = React.useState<string | null>(null);
@@ -34,6 +36,7 @@ const Tester = React.forwardRef(
 				setResult,
 				setCount,
 				setAverage,
+				setServerAvgTime,
 				setMax,
 				setMin,
 				setError,
@@ -41,6 +44,7 @@ const Tester = React.forwardRef(
 					setResult(0);
 					setCount(0);
 					setAverage(0);
+					setServerAvgTime(0);
 					setMax(0);
 					setMin(0);
 					setError(null);
@@ -62,6 +66,10 @@ const Tester = React.forwardRef(
 				</div>
 				<div>Count: {count}</div>
 				<div>Average: {average ? `${average.toFixed(2)} ms` : ""}</div>
+				<div>
+					Server Average:{" "}
+					{serverAvgTime ? `${serverAvgTime.toFixed(2)} ms` : ""}
+				</div>
 				<div>Max: {max ? `${max.toFixed(2)} ms` : ""}</div>
 				<div>Min: {min ? `${min.toFixed(2)} ms` : ""}</div>
 				{error && <div style={{ color: "red" }}>{error}</div>}
