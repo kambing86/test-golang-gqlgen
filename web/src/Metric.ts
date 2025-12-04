@@ -4,6 +4,7 @@ export class Metrics {
 	private tester: TesterRef | null;
 	private startTime: number;
 	private completedRequests: number;
+	private requestTotalTime: number;
 	private serverTotalTime: number;
 	private maxTime: number;
 	private minTime: number;
@@ -12,6 +13,7 @@ export class Metrics {
 		this.tester = tester;
 		this.startTime = performance.now();
 		this.completedRequests = 0;
+		this.requestTotalTime = 0;
 		this.serverTotalTime = 0;
 		this.maxTime = 0;
 		this.minTime = Number.MAX_VALUE;
@@ -31,6 +33,9 @@ export class Metrics {
 		const endTime = performance.now();
 		const averageTime = (endTime - this.startTime) / this.completedRequests;
 		this.tester?.setAverage(averageTime);
+		this.requestTotalTime += duration;
+		const requestAverageTime = this.requestTotalTime / this.completedRequests;
+		this.tester?.setRequestAvgTime(requestAverageTime);
 		this.serverTotalTime += serverAppTime;
 		const serverAverageTime = this.serverTotalTime / this.completedRequests;
 		this.tester?.setServerAvgTime(serverAverageTime);

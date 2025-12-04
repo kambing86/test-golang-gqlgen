@@ -4,6 +4,7 @@ export interface TesterRef {
 	setResult: (value: number) => void;
 	setCount: (value: number) => void;
 	setAverage: (value: number) => void;
+	setRequestAvgTime: (value: number) => void;
 	setServerAvgTime: (value: number) => void;
 	setMax: (value: number) => void;
 	setMin: (value: number) => void;
@@ -27,15 +28,17 @@ const Tester = React.forwardRef(
 		const [result, setResult] = React.useState<number>(0);
 		const [count, setCount] = React.useState<number>(0);
 		const [average, setAverage] = React.useState<number>(0);
+		const [requestAvgTime, setRequestAvgTime] = React.useState<number>(0);
 		const [serverAvgTime, setServerAvgTime] = React.useState<number>(0);
 		const [max, setMax] = React.useState<number>(0);
 		const [min, setMin] = React.useState<number>(0);
 		const [error, setError] = React.useState<string | null>(null);
-		if (ref && typeof ref !== "function") {
+		if (ref && typeof ref !== "function" && ref.current == null) {
 			ref.current = {
 				setResult,
 				setCount,
 				setAverage,
+				setRequestAvgTime,
 				setServerAvgTime,
 				setMax,
 				setMin,
@@ -66,6 +69,10 @@ const Tester = React.forwardRef(
 				</div>
 				<div>Count: {count}</div>
 				<div>Average: {average ? `${average.toFixed(2)} ms` : ""}</div>
+				<div>
+					Request Average:{" "}
+					{requestAvgTime ? `${requestAvgTime.toFixed(2)} ms` : ""}
+				</div>
 				<div>
 					Server Average:{" "}
 					{serverAvgTime ? `${serverAvgTime.toFixed(2)} ms` : ""}
