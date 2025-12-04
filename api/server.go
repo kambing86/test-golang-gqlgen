@@ -55,7 +55,9 @@ func main() {
 		w.Write(responseBytes)
 	})
 
-	handler := middlewares.CorsMiddleware(mux)
+	handler := middlewares.TimerMiddleware(mux, "app")
+	handler = middlewares.CorsMiddleware(handler)
+	handler = middlewares.TimerMiddleware(handler, "cors")
 	handler = middlewares.CompressionMiddleware(handler)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
