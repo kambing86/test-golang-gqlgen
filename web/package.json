@@ -11,13 +11,13 @@
     "preview": "rsbuild preview"
   },
   "dependencies": {
-    "es-toolkit": "^1.42.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "es-toolkit": "^1.43.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.2",
-    "@rsbuild/core": "^1.6.7",
+    "@rsbuild/core": "^1.6.15",
     "@rsbuild/plugin-react": "^1.4.2",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
