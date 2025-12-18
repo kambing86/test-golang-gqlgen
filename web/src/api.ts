@@ -1,4 +1,5 @@
 import { limitAsync } from "es-toolkit";
+import { stripIgnoredCharacters } from "graphql";
 import { Metrics } from "./Metric";
 import type { TesterRef } from "./Tester";
 
@@ -40,6 +41,8 @@ export function testRestAPI(
 	}
 }
 
+const usingGetForGraphQL = false;
+
 export function testGraphQLAPI(
 	testCount: number,
 	concurrency: number,
@@ -47,7 +50,7 @@ export function testGraphQLAPI(
 ) {
 	const metric = new Metrics(tester);
 
-	const query = `
+	const query = stripIgnoredCharacters(`
 {
   centroid {
     acquired_at
@@ -61,17 +64,19 @@ export function testGraphQLAPI(
     sensor_id
   }
 }
-`;
+`);
 
 	const fetchPromise = getLimit(
 		() =>
-			fetch("http://localhost:8080/query", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ query }),
-			}),
+			usingGetForGraphQL
+				? fetch(`http://localhost:8080/query?query=${query}`)
+				: fetch("http://localhost:8080/query", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({ query }),
+					}),
 		concurrency,
 	);
 
