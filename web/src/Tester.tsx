@@ -29,9 +29,9 @@ const Tester = React.forwardRef(
 		const [count, setCount] = React.useState<number>(0);
 		const [average, setAverage] = React.useState<number>(0);
 		const [requestAvgTime, setRequestAvgTime] = React.useState<number>(0);
-		const [serverAvgTime, setServerAvgTime] = React.useState<number>(0);
 		const [max, setMax] = React.useState<number>(0);
 		const [min, setMin] = React.useState<number>(0);
+		const [serverAvgTime, setServerAvgTime] = React.useState<number>(0);
 		const [error, setError] = React.useState<string | null>(null);
 		if (ref && typeof ref !== "function" && ref.current == null) {
 			ref.current = {
@@ -48,9 +48,9 @@ const Tester = React.forwardRef(
 					setCount(0);
 					setAverage(0);
 					setRequestAvgTime(0);
-					setServerAvgTime(0);
 					setMax(0);
 					setMin(0);
+					setServerAvgTime(0);
 					setError(null);
 				},
 			};
@@ -74,12 +74,12 @@ const Tester = React.forwardRef(
 					Request Average:{" "}
 					{requestAvgTime ? `${requestAvgTime.toFixed(2)} ms` : ""}
 				</div>
+				<div>Request Max: {max ? `${max.toFixed(2)} ms` : ""}</div>
+				<div>Request Min: {min ? `${min.toFixed(2)} ms` : ""}</div>
 				<div>
 					Server Average:{" "}
 					{serverAvgTime ? `${serverAvgTime.toFixed(2)} ms` : ""}
 				</div>
-				<div>Max: {max ? `${max.toFixed(2)} ms` : ""}</div>
-				<div>Min: {min ? `${min.toFixed(2)} ms` : ""}</div>
 				{error && <div style={{ color: "red" }}>{error}</div>}
 			</>
 		);
