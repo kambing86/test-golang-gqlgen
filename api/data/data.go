@@ -16,3 +16,8 @@ func Init() {
 	var centroidData, _ = os.ReadFile("data/centroid.json")
 	json.Unmarshal(centroidData, &DataPayload)
 }
+
+func GetRawBytesFromFile() []byte {
+	data, _ := os.ReadFile("data/centroid.json")
+	return data
+}
