@@ -55,6 +55,12 @@ func main() {
 		w.Write(responseBytes)
 	})
 
+	mux.HandleFunc("/centroid/raw", func(w http.ResponseWriter, r *http.Request) {
+		responseBytes := data.GetRawBytesFromFile()
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(responseBytes)
+	})
+
 	handler := middlewares.TimerMiddleware(mux, "app")
 	handler = middlewares.CorsMiddleware(handler)
 	handler = middlewares.TimerMiddleware(handler, "cors")

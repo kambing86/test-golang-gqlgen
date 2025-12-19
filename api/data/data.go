@@ -10,9 +10,14 @@ type CentroidFile struct {
 	Payload []model.CentroidPayload
 }
 
+var RawData []byte
 var DataPayload CentroidFile
 
 func Init() {
-	var centroidData, _ = os.ReadFile("data/centroid.json")
-	json.Unmarshal(centroidData, &DataPayload)
+	RawData, _ = os.ReadFile("data/centroid.json")
+	json.Unmarshal(RawData, &DataPayload)
+}
+
+func GetRawBytesFromFile() []byte {
+	return RawData
 }
